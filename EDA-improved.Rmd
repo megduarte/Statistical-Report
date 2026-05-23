@@ -1,0 +1,109 @@
+---
+title: "EDA"
+author: "Meghan Duarte"
+date: "2026-05-23"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Clean the Data
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+```{r}
+singapore <- read.csv('BirthsAndFertilityRatesAnnual.csv')
+# check the data with glimpse()
+singapore |>
+  glimpse()
+```
+
+```{r}
+clean_1 <- singapore |>
+  filter(DataSeries %in% c("Total Fertility Rate (TFR)", "Total Live-Births")) 
+```
+
+```{r}
+clean_2 <- pivot_longer(clean_1,
+                        cols = starts_with("X"),
+                        names_to = "Year",
+                        values_to = "Value",
+                        values_transform = list(Value = as.character))
+clean_2
+```
+
+```{r}
+clean_3 <- mutate(clean_2, Year = str_remove(Year, "X"))
+
+clean_4 <- clean_3 |> mutate(Year = as.numeric(Year), Value = as.numeric(Value))
+
+clean_data <- clean_4 |>
+  pivot_wider(names_from = DataSeries, values_from = Value)
+singapore <- clean_data |>
+  as_tsibble(index = Year)
+singapore
+```
+
+```{r}
+singapore |> autoplot(`Total Fertility Rate (TFR)`) +
+  labs(title = "Total Fertility Rate (1960-2024)",
+       caption = "Fig. 1 Plot of the Total Fertility Rate in Singapore from 1960 to 2024.",
+       y = "Total Fertility Rate",
+       x = "Year")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
