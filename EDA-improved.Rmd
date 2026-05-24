@@ -110,7 +110,7 @@ Table 2. KPSS test of the log transformed Total Live-Birth rate in Singapore fro
 Figures 3 and 4, along with the p-values from tables 1 and 2 both being significant at the 0.05 significance level, show that a log transformation seems to help a bit but they both still need to be stabilized more. To do this, they will be differenced. 
 
 ```{r}
-singapore |> autoplot(difference(log(`Total Fertility Rate (TFR)`))) +
+singapore |> autoplot(difference(log(`Total Fertility Rate (TFR)`), 1)) +
   labs(title = "First-Order difference of Log TFR (1960-2024)",
        caption = stringr::str_wrap("Fig. 5 Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
        y = "Change in log(TFR)",
@@ -121,7 +121,7 @@ singapore |> autoplot(difference(log(`Total Fertility Rate (TFR)`))) +
 
 
 ```{r}
-singapore |> autoplot(difference(log(`Total Live-Births`))) +
+singapore |> autoplot(difference(log(`Total Live-Births`), 1)) +
   labs(title = "First-Order difference of Log TLB (1960-2024)",
        caption = stringr::str_wrap("Fig. 6 Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), width = 80,
        y = "Change of log(TLB)",
@@ -133,9 +133,9 @@ singapore |> autoplot(difference(log(`Total Live-Births`))) +
 Plots 5 and 6 no longer show a downward trend with a first-order difference of the log transform of each variable.
 
 ```{r}
-TFR <- difference(log(singapore$`Total Fertility Rate (TFR)`))
+TFR <- difference(log(singapore$`Total Fertility Rate (TFR)`), 1)
                   
-TLB <- difference(log(singapore$`Total Live-Births`))
+TLB <- difference(log(singapore$`Total Live-Births`), 1)
 ```
 
 
