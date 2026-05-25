@@ -78,7 +78,12 @@ While figure 1 and figure 2 look different we can see that they show spikes and 
 
 
 ```{r}
-singapore |> autoplot(log(`Total Fertility Rate (TFR)`)) +
+log_TFR <- log(singapore$`Total Fertility Rate (TFR)`)
+log_TLB <- log(singapore$`Total Live-Births`)
+```
+
+```{r}
+singapore |> autoplot(log_TFR) +
   labs(title = "Log-Transformed Total Fertility Rate (1960-2024)",
        caption = stringr::str_wrap("Fig. 3 Plot of the Total Fertility Rate with a log transformation in Singapore from 1960 to 2024."), width = 80,
        y = "log(Total Fertility Rate)",
@@ -89,7 +94,7 @@ singapore |> autoplot(log(`Total Fertility Rate (TFR)`)) +
 
 
 ```{r}
-singapore |> autoplot(log(`Total Live-Births`)) +
+singapore |> autoplot(log_TLB) +
   labs(title = "Log-Transformed Total Live-Births (1960-2024)",
        caption = stringr::str_wrap("Fig. 4 Plot of the Total Live-Births with a log transformation in Singapore from 1960 to 2024."), width = 80,
        y = "log(Total Live-Births)",
@@ -99,12 +104,12 @@ singapore |> autoplot(log(`Total Live-Births`)) +
 ```
 
 ```{r}
-singapore |> features(log(`Total Fertility Rate (TFR)`), unitroot_kpss)
+singapore |> features(log_TFR, unitroot_kpss)
 ```
 Table 1. KPSS test of the log transformed Total Fertility rate in Singapore from 1960-1924. The p-value is 0.01, which is significant at the $\alpha = 0.05$ significance level. 
 
 ```{r}
-singapore |> features(log(`Total Live-Births`), unitroot_kpss)
+singapore |> features(log_TLB, unitroot_kpss)
 ```
 
 Table 2. KPSS test of the log transformed Total Live-Birth rate in Singapore from 1960-1924. The p-value is 0.01, which is significant at the $\alpha = 0.05$ significance level. 
@@ -112,7 +117,13 @@ Table 2. KPSS test of the log transformed Total Live-Birth rate in Singapore fro
 Figures 3 and 4, along with the p-values from tables 1 and 2 both being significant at the 0.05 significance level, show that a log transformation seems to help a bit but they both still need to be stabilized more. To do this, they will be differenced. 
 
 ```{r}
-singapore |> autoplot(difference(log(`Total Fertility Rate (TFR)`), 1)) +
+TFR <- difference(log(singapore$`Total Fertility Rate (TFR)`), 1)
+                  
+TLB <- difference(log(singapore$`Total Live-Births`), 1)
+```
+
+```{r}
+singapore |> autoplot(TFR) +
   labs(title = "First-Order difference of Log TFR (1960-2024)",
        caption = stringr::str_wrap("Fig. 5 Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
        y = "Change in log(TFR)",
@@ -123,7 +134,7 @@ singapore |> autoplot(difference(log(`Total Fertility Rate (TFR)`), 1)) +
 
 
 ```{r}
-singapore |> autoplot(difference(log(`Total Live-Births`), 1)) +
+singapore |> autoplot(TLB) +
   labs(title = "First-Order difference of Log TLB (1960-2024)",
        caption = stringr::str_wrap("Fig. 6 Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), width = 80,
        y = "Change of log(TLB)",
@@ -133,12 +144,6 @@ singapore |> autoplot(difference(log(`Total Live-Births`), 1)) +
 ```
 
 Plots 5 and 6 no longer show a downward trend with a first-order difference of the log transform of each variable.
-
-```{r}
-TFR <- difference(log(singapore$`Total Fertility Rate (TFR)`), 1)
-                  
-TLB <- difference(log(singapore$`Total Live-Births`), 1)
-```
 
 
 ```{r}
@@ -197,6 +202,13 @@ singapore |> PACF(TLB) |>
 
 The spikes at lags 11,12,13 in figures 7,8,9, and 10 show that there's a cyclic behaviour. The year of the Dragon historically has had an effect on birth rates in Singapore. Culturally, it is "considered auspicious for births" (The Straits Times). The Year of the Dragon comes every 12 years, which lines up perfectly with the spikes. 
 
+```{r}
+TFR_Model1 <- singapore |>
+  model(
+    model1_baseline = ARIMA(log_TFR ~ pdq(0,1,0)),
+    model1_auto = ARIMA(log_TFR))
+TFR_Model1
+```
 
 
 
