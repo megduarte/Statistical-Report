@@ -52,6 +52,8 @@ singapore <- clean_data |>
 singapore
 ```
 
+The data has been extracted, and the EDA is only on the Total Fertility Rate (TFR) and Total Live-Births (TLB).
+
 ```{r}
 singapore |> autoplot(`Total Fertility Rate (TFR)`) +
   labs(title = "Total Fertility Rate (1960-2024)",
@@ -153,16 +155,47 @@ Table 4. KPSS test of the first-order differenced log transformed Total Live-Bir
 
 Tables 3 and 4 confirm what figures 5 and 6 showed, when both Total Live-Births and Total Fertility rate are log transformed and then differenced, they are stationary. In a KPSS test, if the p-value is less than 0.05, the null-hypothesis that the series is stationary, is rejected. However, if the p-value is greater than 0.05, the null-hypothesis is accepted and the series is found to be stationary. 
 
+```{r}
+singapore |> ACF(TFR) |>
+  autoplot() +
+  labs(title = "ACF of First-Order Differenced Log TFR (1960-2024)",
+       caption = stringr::str_wrap("Fig. 7 Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024."), width = 80,
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5))
+)
+```
 
 
+```{r}
+singapore |> ACF(TLB) |>
+  autoplot() +
+  labs(title = "ACF of First-Order Differenced Log TLB (1960-2024)",
+       caption = stringr::str_wrap("Fig. 8 Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024.") ,width = 80,
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+singapore |> PACF(TFR) |>
+  autoplot() +
+  labs(title = "PACF of First-Order Differenced Log TFR (1960-2024)",
+       caption = stringr::str_wrap("Fig. 9 Partial Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024."), width = 80,
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5))
+)
+```
 
 
+```{r}
+singapore |> PACF(TLB) |>
+  autoplot() +
+  labs(title = "PACF of First-Order Differenced Log TLB (1960-2024)",
+       caption = stringr::str_wrap("Fig. 10 Partial Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024.") ,width = 80,
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)))
+```
 
-
-
-
-
-
+The spikes at lags 11,12,13 in figures 7,8,9, and 10 show that there's a cyclic behaviour. The year of the Dragon historically has had an effect on birth rates in Singapore. Culturally, it is "considered auspicious for births" (The Straits Times). The Year of the Dragon comes every 12 years, which lines up perfectly with the spikes. 
 
 
 
