@@ -183,15 +183,7 @@ singapore |> ACF(TFR) |>
 )
 ```
 
-singapore |> ACF(TFR) |>
-  autoplot() +
-  labs(title = "ACF of First-Order Differenced Log TFR (1960-2024)",
-       caption = stringr::str_wrap("Fig. 7 Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", 
-       width = 80)
-       ) +
-  theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
-)
+
 
 ```{r}
 singapore |> ACF(TLB) |>
@@ -204,15 +196,6 @@ singapore |> ACF(TLB) |>
   )
 ```
 
-singapore |> ACF(TFR) |>
-  autoplot() +
-  labs(title = "ACF of First-Order Differenced Log TFR (1960-2024)",
-       caption = stringr::str_wrap("Fig. 7 Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", 
-       width = 80)
-       ) +
-  theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
-)
 
 ```{r}
 singapore |> PACF(TFR) |>
@@ -294,10 +277,13 @@ TLB_Model |> select(tlb_auto) |> gg_tsresiduals() +
 
 Figure 12. Plots showing the ARIMA(0,1,0) model for Total Live Births in Singapore from 1960-2024. The residuals plot shows the errors bounding roughly around zero. The ACF plot shows spikes at lags 11, 12, and 13. The histogram is unimodal with an outlier around 0.2.
 
-
 ```{r}
 TFR_Train <- singapore |>
   filter(Year <= 2012)
+```
+
+
+```{r}
 TFR_train_model1 <- TFR_Train |>
   model(tfr_train_baseline = ARIMA(log_TFR ~ pdq(0,1,0)))
 TFR_train_forecast <- TFR_train_model1 |>
@@ -311,9 +297,14 @@ TFR_train_forecast |> autoplot() +
     )
   )
 ```
+
 ```{r}
 TLB_Train <- singapore |>
   filter(Year <= 2012)
+```
+
+
+```{r}
 TLB_train_model1 <- TLB_Train |>
   model(tlb_train_baseline = ARIMA(log_TLB ~ pdq(0,1,0)))
 TLB_train_forecast <- TLB_train_model1 |>
@@ -345,6 +336,7 @@ TFR_train_forecast2 |> autoplot() +
   )
 ```
 
+
 ```{r}
 TLB_train_model2 <- TLB_Train |>
   model(tlm_linear = TSLM(log(`Total Live-Births`) ~ trend()))
@@ -359,6 +351,47 @@ TLB_train_forecast2 |> autoplot() +
     )
   )
 ```
+
+```{r}
+TFR_Model2 <- singapore |>
+  model(
+    tfr_baseline = ARIMA(log_TFR ~ pdq(0,1,0)),
+    tfr_sarima = ARIMA(log_TFR ~ pdq() + PDQ(period = 12))
+  )
+TFR_Model2
+```
+Table 9. Shows the automated search selects a SARIMA(0,1,1)(1,0,1)[12] model with drift for the Total Fertility Rate data.
+
+```{r}
+glance(TFR_Model2)
+```
+
+Table 10. Shows the SARIMA(0,1,1)(1,0,1)[12] model for Total Fertility Rate has a lower AIC at around -183, nearly 10 points lower when compared to the ARIMA(0,1,0) model for Total Fertility Rate. The BIC is also lower for the SARIMA model, and the sigma^2 value is also significantly lower for the SARIMA model. 
+
+All of the values in table 10 confirm that a seasonal ARIMA model is better at handling the Total Fertility Rate data in Singapore from 1960-2024. 
+
+```{r}
+TFR_train_sarima <- TFR_Train |>
+  model(TFR_train_sarima = ARIMA(log_TFR ~ pdq(0,1,1) + PDQ(1,0,1, period = 12)))
+```
+
+```{r}
+TFR_train_sarima_fc <- TFR_train_sarima |>
+  forecast(h = 12)
+```
+
+```{r}
+TFR_train_sarima_fc |>
+  autoplot() +
+  autolayer(singapore, `Total Fertility Rate (TFR)`)
+```
+
+
+
+
+
+
+
 
 
 
