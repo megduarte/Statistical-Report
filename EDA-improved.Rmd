@@ -465,6 +465,69 @@ theme(
 Figure 18 shows that the predicted Total Live-Births is lower than the actual Total Live-Births in Singapore from 2013-2024, however, a good portion of the actual data lies within the 80% confidence interval. Similarly to the Total Fertility-Rate figures, 17 and 13, figure 18 and the ARIMA model seen in figure 14, also demonstrates how SARIMA is a better model to pick for this singapore data set. 
 
 
+```{r}
+tfr_resid <- augment(TFR_train_sarima)
+```
+
+```{r}
+tfr_resid |> ACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "ACF of SARIMA model for TFR ",
+    caption = stringr::str_wrap("Figure 19. ACF Plot of the SARIMA model shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+```{r}
+tfr_resid |> PACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "PACF of SARIMA model for TFR ",
+    caption = stringr::str_wrap("Figure 20. PACF Plot of the SARIMA model shows that there is a spike at lag 15 and potentially at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+```{r}
+tlb_resid <- augment(TLB_train_sarima)
+```
+
+```{r}
+tlb_resid |> ACF(.resid) |>
+  autoplot()  +
+  labs(
+    title = "ACF of SARIMA model for TLB in Singapore ",
+    caption = stringr::str_wrap("Figure 21. ACF Plot of the predictive SARIMA shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+tlb_resid |> PACF(.resid) |>
+  autoplot()  +
+  labs(
+    title = "PACF of SARIMA model for TLB in Singapore ",
+    caption = stringr::str_wrap("Figure 22. PACF Plot of the predictive SARIMA shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+
+
+
+
+
+
 
 
 
