@@ -61,7 +61,8 @@ singapore |> autoplot(`Total Fertility Rate (TFR)`) +
        y = "Total Fertility Rate",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 ```{r}
@@ -80,16 +81,20 @@ singapore |>
        y = "Total Live-Births",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 While figure 1 and figure 2 look different we can see that they show spikes and drops at similar points. There is a spike around 1988 in the plot of Total Fertility Rate and a large spike around the same year in the plot of the Total Live-Births. This can also be seen with a spike around 1972, as well as drops around 1969, 1987, 2003, and 2024.   
 
-
 ```{r}
-log_TFR <- log(singapore$`Total Fertility Rate (TFR)`)
-log_TLB <- log(singapore$`Total Live-Births`)
+singapore <- singapore |>
+  mutate(
+    log_TFR = log(`Total Fertility Rate (TFR)`),
+    log_TLB = log(`Total Live-Births`)
+  )
 ```
+
 
 ```{r}
 singapore |> autoplot(log_TFR) +
@@ -98,7 +103,8 @@ singapore |> autoplot(log_TFR) +
        y = "log(Total Fertility Rate)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 
@@ -109,7 +115,8 @@ singapore |> autoplot(log_TLB) +
        y = "log(Total Live-Births)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 ```{r}
@@ -125,44 +132,41 @@ Table 2. KPSS test of the log transformed Total Live-Birth rate in Singapore fro
 
 Figures 3 and 4, along with the p-values from tables 1 and 2 both being significant at the 0.05 significance level, show that a log transformation seems to help a bit but they both still need to be stabilized more. To do this, they will be differenced. 
 
-```{r}
-TFR <- difference(log(singapore$`Total Fertility Rate (TFR)`), 1)
-                  
-TLB <- difference(log(singapore$`Total Live-Births`), 1)
-```
 
 ```{r}
-singapore |> autoplot(TFR) +
+singapore |> autoplot(difference(log_TFR, 1)) +
   labs(title = "First-Order difference of Log TFR (1960-2024)",
        caption = stringr::str_wrap("Figure 5. Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
        y = "Change in log(TFR)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 
 ```{r}
-singapore |> autoplot(TLB) +
+singapore |> autoplot(difference(log_TLB, 1)) +
   labs(title = "First-Order difference of Log TLB (1960-2024)",
        caption = stringr::str_wrap("Figure 6. Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), 
        width = 80,
        y = "Change of log(TLB)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0)
+        )
 ```
 
 Plots 5 and 6 no longer show a downward trend with a first-order difference of the log transform of each variable.
 
 
 ```{r}
-singapore |> features(TFR, unitroot_kpss)
+singapore |> features(difference(log_TFR, 1), unitroot_kpss)
 ```
 Table 3. KPSS test of the first-order differenced log transformed Total Fertility rate in Singapore from 1960-1924. The p-value is 0.09, which is not significant at the $\alpha = 0.05$ significance level.
 
 ```{r}
-singapore |> features(TLB, unitroot_kpss)
+singapore |> features(difference(log_TLB, 1), unitroot_kpss)
 ```
 
 Table 4. KPSS test of the first-order differenced log transformed Total Live-Birth rate in Singapore from 1960-1924. The p-value is 0.1, which is not significant at the $\alpha = 0.05$ significance level. 
@@ -172,51 +176,49 @@ Tables 3 and 4 confirm what figures 5 and 6 showed, when both Total Live-Births 
 
 
 ```{r ACFplot, warning=FALSE}
-singapore |> ACF(TFR) |>
+singapore |> ACF(difference(log_TFR, 1)) |>
   autoplot() +
   labs(title = "ACF of First-Order Differenced Log TFR (1960-2024)",
        caption = stringr::str_wrap("Figure 7. Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", 
        width = 80)
        ) +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
+        plot.title = element_text(hjust = 0)
 )
 ```
 
-
-
 ```{r}
-singapore |> ACF(TLB) |>
+singapore |> ACF(difference(log_TLB, 1)) |>
   autoplot() +
   labs(title = "ACF of First-Order Differenced Log TLB (1960-2024)",
        caption = stringr::str_wrap("Figure 8. Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024." ,width = 80)
   ) +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
+        plot.title = element_text(hjust = 0)
   )
 ```
 
 
 ```{r}
-singapore |> PACF(TFR) |>
+singapore |> PACF(difference(log_TFR, 1)) |>
   autoplot() +
   labs(title = "PACF of First-Order Differenced Log TFR (1960-2024)",
        caption = stringr::str_wrap("Figure 9. Partial Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", width = 80)
   ) +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
+        plot.title = element_text(hjust = 0)
 )
 ```
 
 
 ```{r}
-singapore |> PACF(TLB) |>
+singapore |> PACF(difference(log_TLB, 1)) |>
   autoplot() +
   labs(title = "PACF of First-Order Differenced Log TLB (1960-2024)",
        caption = stringr::str_wrap("Figure 10. Partial Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024." ,width = 80)
   ) +
   theme(plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5)
+        plot.title = element_text(hjust = 0)
   )
 ```
 
@@ -289,13 +291,17 @@ TFR_train_model1 <- TFR_Train |>
 TFR_train_forecast <- TFR_train_model1 |>
   forecast(h=12)
 TFR_train_forecast |> autoplot() +
-  autolayer(singapore, `Total Fertility Rate (TFR)`) +
+  autolayer(singapore, log_TFR) +
   labs(
     title = "ARIMA(0,1,0) Predicted vs Actual TFR",
     caption = stringr::str_wrap(
-      "Figure 13. Plot shows that the predictive model drops significantly more than the actual data does for the 2013-2024 period for the Total Fertility Rate in Singapore." ,width = 80
+      "Figure 13. Plot shows that the predictive model drops more than the actual data does for the 2013-2024 period for the Total Fertility Rate in Singapore." ,width = 80
     )
-  )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
 ```
 
 ```{r}
@@ -310,47 +316,60 @@ TLB_train_model1 <- TLB_Train |>
 TLB_train_forecast <- TLB_train_model1 |>
   forecast(h=12)
 TLB_train_forecast |> autoplot() +
-  autolayer(singapore, `Total Live-Births`) +
+  autolayer(singapore, log_TLB) +
   labs(
     title = "ARIMA(0,1,0) Predicted vs Actual TLB",
     caption = stringr::str_wrap(
-      "Figure 14. Plot shows that the predictive model drops significantly more than the actual data does for the 2013-2024 period for the Total Live Births in Singapore." ,width = 80
+      "Figure 14. Plot shows that the predictive model drops more than the actual data does for the 2013-2024 period for the Total Live Births in Singapore." ,width = 80
     )
-  )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
 ```
 
 Figures 13 and 14 show that an ARIMA model is not adequate enough at making a predictive modeling the Total Live Births and Total Fertility Rate from 2013-2024 base on the data from 1960-2012. 
 
 ```{r}
 TFR_train_model2 <- TFR_Train |>
-  model(tfr_linear = TSLM(log(`Total Fertility Rate (TFR)`) ~ trend()))
+  model(tfr_linear = TSLM(log_TFR ~ trend()))
 TFR_train_forecast2 <- TFR_train_model2 |>
   forecast(h=12)
 TFR_train_forecast2 |> autoplot() +
-  autolayer(singapore, `Total Fertility Rate (TFR)`) +
+  autolayer(singapore, log_TFR) +
   labs(
     title = "TSLM Predicted vs Actual TFR",
     caption = stringr::str_wrap(
       "Figure 15. Plot shows that the predictive model drops slightly more than the actual data does for the 2013-2024 period for the Total Live Births in Singapore." ,width = 80
     )
-  )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
 ```
 
 
 ```{r}
 TLB_train_model2 <- TLB_Train |>
-  model(tlm_linear = TSLM(log(`Total Live-Births`) ~ trend()))
+  model(tlm_linear = TSLM(log_TLB ~ trend()))
 TLB_train_forecast2 <- TLB_train_model2 |>
   forecast(h=12)
 TLB_train_forecast2 |> autoplot() +
-  autolayer(singapore, `Total Live-Births`) +
+  autolayer(singapore, log_TLB) +
   labs(
     title = "TSLM Predicted vs Actual TLB",
     caption = stringr::str_wrap(
       "Figure 16. Plot shows that the predictive model does not drops as significantly as the actual data does for the 2013-2024 period for the Total Live Births in Singapore." ,width = 80
     )
-  )
+  ) +
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
 ```
+
 
 ```{r}
 TFR_Model2 <- singapore |>
@@ -358,7 +377,7 @@ TFR_Model2 <- singapore |>
     tfr_baseline = ARIMA(log_TFR ~ pdq(0,1,0)),
     tfr_sarima = ARIMA(log_TFR ~ pdq() + PDQ(period = 12))
   )
-TFR_Model2
+TFR_Model2 |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
 ```
 Table 9. Shows the automated search selects a SARIMA(0,1,1)(1,0,1)[12] model with drift for the Total Fertility Rate data.
 
@@ -372,7 +391,7 @@ All of the values in table 10 confirm that a seasonal ARIMA model is better at h
 
 ```{r}
 TFR_train_sarima <- TFR_Train |>
-  model(TFR_train_sarima = ARIMA(log_TFR ~ pdq(0,1,1) + PDQ(1,0,1, period = 12)))
+  model(TFR_sarima = ARIMA(log_TFR ~ pdq() + PDQ( period = 12)))
 ```
 
 ```{r}
@@ -383,14 +402,67 @@ TFR_train_sarima_fc <- TFR_train_sarima |>
 ```{r}
 TFR_train_sarima_fc |>
   autoplot() +
-  autolayer(singapore, `Total Fertility Rate (TFR)`)
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "SARIMA plot of predicted vs actual TFR",
+    caption = stringr::str_wrap(
+      "Figure 17. Plot shows that the SARIMA predictive model shows lower total fertility rates in singapore from 2013-2024 than the known data shows." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
 ```
 
+Figure 17 shows that similarly to the ARIMA predictive model. the predictive model expects the total fertility rate to drop more in 2013-2024 than it actually does. However, unlike the ARIMA predictive model seen in figure 13, the SARIMA(0,1,1)(1,0,1)[12] model accounts for seasonality. In the ARIMA model, the predicted values for 2013-2024, was a straight line with a negative slope. The predictive center line for the SARIMA model has "wiggle" to it, accounting for rises and drops in the TFR. This looks much more similar to the actual data. 
 
 
+```{r}
+TLB_Model2 <- singapore |>
+  model(
+    tlb_baseline = ARIMA(log_TLB ~ pdq(0,1,0)),
+    tlb_sarima = ARIMA(log_TLB ~ pdq() + PDQ(period = 12))
+  )
+TLB_Model2 |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
+```
+Table 11. Shows the automated search selects a SARIMA(1,1,0)(1,0,0)[12] model for the Total Live-Births data.
 
+```{r}
+glance(TLB_Model2)
+```
 
+Table 12. Shows the SARIMA(1,1,0)(1,0,0)[12] model for Total Live-Births has a lower AIC at around -191, over 10 points lower when compared to the ARIMA(0,1,0) model for Total Live-Births. The BIC is also lower for the SARIMA model, and the sigma^2 value is also significantly lower for the SARIMA model. 
 
+All of the values in table 12 confirm that a seasonal ARIMA model is better at handling the Total Live-Births data in Singapore from 1960-2024. 
+
+```{r}
+TLB_train_sarima <- TLB_Train |>
+  model(TLB_sarima = ARIMA(log_TLB ~ pdq() + PDQ( period = 12)))
+```
+
+```{r}
+TLB_train_sarima_fc <- TLB_train_sarima |>
+  forecast(h = 12)
+```
+
+```{r}
+TLB_train_sarima_fc |>
+  autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = "SARIMA plot of predicted vs actual TLB",
+    caption = stringr::str_wrap(
+      "Figure 18. Plot shows that the SARIMA predictive model shows lower total live-births in singapore from 2013-2024 than the known data shows." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
+```
+
+Figure 18 shows that the predicted Total Live-Births is lower than the actual Total Live-Births in Singapore from 2013-2024, however, a good portion of the actual data lies within the 80% confidence interval. Similarly to the Total Fertility-Rate figures, 17 and 13, figure 18 and the ARIMA model seen in figure 14, also demonstrates how SARIMA is a better model to pick for this singapore data set. 
 
 
 
