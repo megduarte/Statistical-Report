@@ -536,19 +536,59 @@ TFR_policy_fc <- TFR_policy_model |>
   forecast(new_data = singapore_future)
 ```
 
-
-
 ```{r}
 TFR_policy_fc |>
   autoplot() +
   autolayer(singapore, log_TFR) +
   labs(
     title = "Predictive Model with Policies vs Know TFR",
-    caption = stringr::str_wrap("Figure 21. Plot of the predictive SARIMA shows that the SARIMA model that takes the government's family planning policies into account, follows the known TFR data very well.", width = 75)
+    caption = stringr::str_wrap("Figure 21. Plot of the predictive SARIMA shows that the SARIMA model that takes the government's family planning policies into account, follows the known TFR data fairly well.", width = 75)
   ) +
   theme(plot.caption = element_text(hjust = 0.5),
         plot.title = element_text(hjust = 0)
   )
 ```
 
-Both figure 21 and table 16 confirm that the predictive models that account for the two different stages of Singaporean government family planning policies is better at predicting the values for the Total Fertility Rate in Singapore from 2013-2024 than a SARIMA model that does not take these policies into consideration. 
+Both figure 21 and table 16 confirm that the predictive models that account for the two different stages of Singaporean government family planning policies is better at predicting the values for the Total Fertility Rate in Singapore from 2013-2024 than a SARIMA model that does not take these policies into consideration. Figure 15 shows the plot of the SARIMA plot predicting the values for the 2013-2024 period compared to the actual data, and it was seen that at the end of the time period the model predicts the TFR will increase, whereas the actual data downturns. In figure 21, it can be seen that while the predictive data does not drop as much as the actual data does, it is downturned, like the actual data. 
+
+
+```{r}
+TLB_policy_model <- singapore_train |>
+  model(
+    tlb_train_sarima = ARIMA(log_TLB ~ pdq() + PDQ(period = 12)),
+    tlb_sarima_policy = ARIMA(log_TLB ~ small_family_push + big_family_push + pdq() + PDQ( period = 12))
+  )
+TLB_policy_model |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
+```
+
+Table 17. Shows that the chosen SARIMA model for the TLB training data (1960-2012) is SARIMA(0,1,0)(1,0,0)[12], this is also seen in table 14. Table 15 also shows that the chosen SARIMA for the model that takes account for the policy years is LM with ARIMA(1,0,0)(1,0,0)[12]. 
+
+```{r}
+glance(TLB_policy_model)
+```
+
+Table 18. Shows that the $\sigma ^2$, AIC, and BIC were lower for the model that take the government policies into account. 
+
+It can be seen from table 18 that the model that includes the government policies for the Total Live-Births is a better model than the regular sarima model as it has a lower $\sigma ^2$, AIC, and BIC.
+
+```{r}
+TLB_policy_fc <- TLB_policy_model |>
+  select(tlb_sarima_policy) |>
+  forecast(new_data = singapore_future)
+```
+
+```{r}
+TLB_policy_fc |>
+  autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = "Predictive Model with Policies vs Know TLB",
+    caption = stringr::str_wrap("Figure 22. Plot of the predictive SARIMA shows that the SARIMA model that takes the government's family planning policies into account, follows the known TLB data fairly well.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+It can be seen that figure 22 follows the actual data fairly well, but it does not drop nearly as much as the actual data does around 2021. 
+
