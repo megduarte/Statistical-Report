@@ -1,5 +1,5 @@
 ---
-title: "Statistical Report"
+title: "Predicting Fertility and Birth Rates in Singapore from 2013-2024 Using Data from 1960-2012"
 author: "Meghan Duarte"
 date: "2026-05-23"
 output:
@@ -11,7 +11,18 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
 # Abstract
+
+In Singapore, there has been a decline in both fertility rates and live-birth rates since 1960. While the total live-births increased around 1987, they have been on the decline ever since. In this report, we aim to see if we can successfully create a model that can predict the future birth and fertility rates in Singapore. This is done using the Births And Fertility Rates, Annual data set from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset runs from 1960-2024, the data from 1960-2012 is as a training set for the model and the model will forecast the TLB and TFR from 2013-2024. The success of the model will be based off of the ACF and PACF plots as well as comparing the forecasted values to the known dataset. There will be a model for predicting the Total Fertility Rate (TFR) in Singapore as well as one predicting the Total Live-Births (TLB) in Singapore.
 
 # Introduction
 
