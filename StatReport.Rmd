@@ -18,15 +18,109 @@ library(ggplot2)
 library(tsibble)
 library(feasts)
 library(fable)
+library(patchwork)
 ```
 
 # Abstract
 
-In Singapore, there has been a decline in both fertility rates and live-birth rates since 1960. While the total live-births increased around 1987, they have been on the decline ever since. In this report, we aim to see if we can successfully create a model that can predict the future birth and fertility rates in Singapore. This is done using the Births And Fertility Rates, Annual data set from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset runs from 1960-2024, the data from 1960-2012 is as a training set for the model and the model will forecast the TLB and TFR from 2013-2024. The success of the model will be based off of the ACF and PACF plots as well as comparing the forecasted values to the known dataset. There will be a model for predicting the Total Fertility Rate (TFR) in Singapore as well as one predicting the Total Live-Births (TLB) in Singapore.
+In Singapore, there has been a decline in both fertility rates and live-birth rates since 1960. While the total live-births increased around 1987, they have been on the decline ever since. In this report, we aim to see if we can successfully create a model that can predict the future birth and fertility rates in Singapore. Furthermore, we aim to see if the government policies have a statistically significant effect on the TLB and TFR. This is done using the Births And Fertility Rates, Annual data set from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset runs from 1960-2024, the data from 1960-2012 is as a training set for the model and the model will forecast the TLB and TFR from 2013-2024. The success of the model will be based off of the ACF and PACF plots as well as comparing the forecasted values to the known dataset. There will be a model for predicting the Total Fertility Rate (TFR) in Singapore as well as one predicting the Total Live-Births (TLB) in Singapore.
 
 # Introduction
 
+The Singaporean government previously has had family planning policies in place that pushed heavily for limiting your family size to two children or fewer. In 1966 a board was put together to deal with family planning in Singapore. They helped with educating on family planning (what it is and how to do it) and providing contraception. Sterilization was legalized in Singapore in 1970 and abortion was legalized in 1969. However, the government family planning policies specifically started in 1972 with the "Stop at Two" policy. This lasted until 1987 when the government shifted to a policy that encouraged couples to increase their family sizes. This shift occurred as the elderly, retired, population is larger than the younger, working, age group. This puts a large financial strain on a country as ideally you have a larger working population to generate income and contribute to taxes that help fund programs such as social security. Despite the governments interference in 1987, the TFR and TLB rates have not yet recovered. It was expected that there would be a rise in 2024 as it was the Year of the Dragon; in Singapore this is a desired year to have a child in. It is believed that if you are born in the Year of the Dragon that you are going to be wise and confident and you will do well in life. However, despite it being the Year of the Dragon, neither TLB nor TFR increased in 2024.
+
 # Methods
+
+A. Data Preparation
+
+The birth and fertility data utilized in this report was obtained from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset is comprised of the Total Fertility Rate (TFR), 15-19 Years, 20-24 Years, 25-29 Years, 30-34 Years, 35-39 Years, 40-44 Years, 45-49 Years, Chinese, Malays, Indians, Gross Reproduction Rate, Net Reproduction Rate, Crude Birth Rate, Total Live-Births, Resident Live-Births, Citizen Live-Births. For this report only Total Fertility Rate (TFR), and Total Live-Births were used. There are no missing values in this data set, however the data had to be transformed from having the individual years as columns and TFR and TLB as rows. A column was created called 'Years' and all years, 1960-2024, were place under, TFR and TLB were made into columns as well. TFR and TLB are then log transformed to help stabilize the variance.
+
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+singapore <- read.csv('BirthsAndFertilityRatesAnnual.csv')
+clean_1 <- singapore |>
+  filter(DataSeries %in% c("Total Fertility Rate (TFR)", "Total Live-Births")) 
+
+clean_2 <- pivot_longer(clean_1,
+                        cols = starts_with("X"),
+                        names_to = "Year",
+                        values_to = "Value",
+                        values_transform = list(Value = as.character))
+
+clean_3 <- mutate(clean_2, Year = str_remove(Year, "X"))
+
+clean_4 <- clean_3 |> mutate(Year = as.numeric(Year), Value = as.numeric(Value))
+
+clean_data <- clean_4 |>
+  pivot_wider(names_from = DataSeries, values_from = Value)
+singapore <- clean_data |>
+  as_tsibble(index = Year)
+```
+
+```{r fig 1, fig.width =5, fig.height=3.5, fit.align = "center", message=FALSE, warning=FALSE, echo = FALSE}
+ singapore |> autoplot(`Total Fertility Rate (TFR)`) +
+  labs(title = "Total Fertility Rate (1960-2024)",
+       caption = "Figure 1. Plot of the Total Fertility Rate in Singapore from 1960 to 2024.",
+       y = "Total Fertility Rate",
+       x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+```{r fig 2, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
+singapore <- singapore |>
+  mutate(
+    log_TFR = log(`Total Fertility Rate (TFR)`),
+    log_TLB = log(`Total Live-Births`)
+  )
+singapore |> autoplot(log_TFR) +
+  labs(title = "Log-Transformed Total Fertility Rate (1960-2024)",
+       caption = stringr::str_wrap("Figure 3. Plot of the Total Fertility Rate with a log transformation in Singapore from 1960 to 2024."), width = 80,
+       y = "log(Total Fertility Rate)",
+       x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+        )
+```
+
+```{r fig 3, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
+ singapore |> 
+  autoplot(`Total Live-Births`) +
+  labs(
+    title = "Total Live-Births (1960-2024)",
+    caption = stringr::str_wrap(
+      paste0(
+        "Figure 2. Plot of the Total Live-Births in Singapore from",
+        " 1960 to 2024 shows that it follows a roughly similar trend",
+        " as the plot of the Total Fertility Rate."
+      ), 
+      width = 80
+    ),
+    y = "Total Live-Births",
+    x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )        
+        
+```
+
+```{r fig 4, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
+
+singapore |> autoplot(log_TLB) +
+  labs(title = "Log-Transformed Total Live-Births (1960-2024)",
+       caption = stringr::str_wrap("Figure 4. Plot of the Total Live-Births with a log transformation in Singapore from 1960 to 2024."), width = 80,
+       y = "log(Total Live-Births)",
+       x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+        )
+```
+
+B. The ARIMA Model
+
+ARIMA models can be used for modeling data with trends. It is outline by the definition provided in Introduction to Time Series and Forecasting by Brockwell and Davis, "if *d* is a nonnegative integer, then ${X_t}$ is an $ARIMA(pdq)$ process if $Y_t := (1- B)^d X_t$ is a causal $ARMA(p,q)$ process." Therefore, ${X_t}$ satisfies an equation of the form
+
+$\phi * (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$
 
 # Results
 
