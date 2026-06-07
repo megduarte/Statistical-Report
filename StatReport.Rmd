@@ -27,7 +27,7 @@ In Singapore, there has been a decline in both fertility rates and live-birth ra
 
 # Introduction
 
-The Singaporean government previously has had family planning policies in place that pushed heavily for limiting your family size to two children or fewer. In 1966 a board was put together to deal with family planning in Singapore. They helped with educating on family planning (what it is and how to do it) and providing contraception. Sterilization was legalized in Singapore in 1970 and abortion was legalized in 1969. However, the government family planning policies specifically started in 1972 with the "Stop at Two" policy. This lasted until 1987 when the government shifted to a policy that encouraged couples to increase their family sizes. This shift occurred as the elderly, retired, population is larger than the younger, working, age group. This puts a large financial strain on a country as ideally you have a larger working population to generate income and contribute to taxes that help fund programs such as social security. Despite the governments interference in 1987, the TFR and TLB rates have not yet recovered. It was expected that there would be a rise in 2024 as it was the Year of the Dragon; in Singapore this is a desired year to have a child in. It is believed that if you are born in the Year of the Dragon that you are going to be wise and confident and you will do well in life. However, despite it being the Year of the Dragon, neither TLB nor TFR increased in 2024.
+The Singaporean government previously has had family planning policies in place that pushed heavily for limiting your family size to two children or fewer. In 1966 a board was put together to deal with family planning in Singapore. They helped with educating on family planning (what it is and how to do it) and providing contraception. Sterilization was legalized in Singapore in 1970 and abortion was legalized in 1969. However, the government family planning policies specifically started in 1972 with the "Stop at Two" policy. This lasted until 1987 when the government shifted to a policy that encouraged couples to increase their family sizes [2]. This shift occurred as the elderly, retired, population is larger than the younger, working, age group. This puts a large financial strain on a country as ideally you have a larger working population to generate income and contribute to taxes that help fund programs such as social security. Despite the governments interference in 1987, the TFR and TLB rates have not yet recovered. It was expected that there would be a rise in 2024 as it was the Year of the Dragon; in Singapore this is a desired year to have a child in. It is believed that if you are born in the Year of the Dragon that you are going to be wise and confident and you will do well in life [3]. However, despite it being the Year of the Dragon, neither TLB nor TFR increased in 2024 [4].
 
 # Methods
 
@@ -116,11 +116,14 @@ singapore |> autoplot(log_TLB) +
         )
 ```
 
-B. The ARIMA Model
+B. The ARIMA model
 
-ARIMA models can be used for modeling data with trends. It is outline by the definition provided in Introduction to Time Series and Forecasting by Brockwell and Davis, "if *d* is a nonnegative integer, then ${X_t}$ is an $ARIMA(pdq)$ process if $Y_t := (1- B)^d X_t$ is a causal $ARMA(p,q)$ process." Therefore, ${X_t}$ satisfies an equation of the form
+ARIMA models can be used for modeling data with trends. It is outline by the definition provided in Introduction to Time Series and Forecasting by Brockwell and Davis, "if *d* is a nonnegative integer, then ${X_t}$ is an $ARIMA(pdq)$ process if $Y_t := (1- B)^d X_t$ is a causal $ARMA(p,q)$ process" [1]. Therefore, ${X_t}$ satisfies an equation of the form
 
-$\phi * (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$
+$\phi^* (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$.
+
+
+
 
 # Results
 
@@ -129,3 +132,13 @@ $\phi * (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$
 # Conclussion 
 
 # References
+
+[1] Brockwell, P.J. and Davis, R.A. (2013). Introduction to Time Series and Forecasting. Springer Science & Business Media.
+
+[2] Kee, A. (2022). BiblioAsia. [online] BiblioAsia. Available at: https://biblioasia.nlb.gov.sg/all-sections/vol-18-issue-3-oct-dec-2022-family-planning-singapore/.
+
+[3] Song, S. (2018). Chinese New Year 2020. [online] Chinese New Year 2018. Available at: https://chinesenewyear.net/zodiac/dragon/.
+
+[4] Tan, T. (2025). 2024 is first Dragon Year since 1964 that failed to lift Singapore’s fertility rate. [online] The Straits Times. Available at: https://www.straitstimes.com/singapore/community/2024-the-year-in-singapore-the-dragon-failed-to-deliver-the-stork.
+
+
