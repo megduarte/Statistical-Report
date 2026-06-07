@@ -12,9 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Clean the Data
+# Clean the Data`
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
@@ -591,4 +591,253 @@ TLB_policy_fc |>
 ```
 
 It can be seen that figure 22 follows the actual data fairly well, but it does not drop nearly as much as the actual data does around 2021. 
+
+```{r}
+tfr_policy_resid <- augment(TFR_policy_model)
+tfr_policy_resid |> 
+  ACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq() + PDQ( period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+```{r}
+tfr_policy_resid |> PACF(.resid) |>
+  autoplot()
+```
+
+
+```{r}
+tlb_policy_resid <- augment(TLB_policy_model)
+tlb_policy_resid |> ACF(.resid) |>
+  autoplot()
+```
+
+```{r}
+tlb_policy_resid |> PACF(.resid) |>
+  autoplot()
+```
+
+
+```{r}
+TFR_perfect_1 <-singapore_train |>
+  model(
+    tfr_sarima_policy_1 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(period = 12))
+  )
+TFR_perfect_1 |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
+```
+
+
+```{r}
+tfr_perfect1_resid <- augment(TFR_perfect_1)
+tfr_perfect1_resid |> 
+  ACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_1 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+tfr_perfect1_resid |> 
+  PACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_1 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+TFR_perfect_2 <-singapore_train |>
+  model(
+    tfr_sarima_policy_2 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(1,0,0, period = 12))
+  )
+```
+
+```{r}
+tfr_perfect2_resid <- augment(TFR_perfect_2)
+tfr_perfect2_resid |> 
+  ACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_2 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(1,0,0, period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+tfr_perfect2_resid |> 
+  PACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_2 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,0,2) + PDQ(1,0,0, period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+TFR_perfect_2_fc <- TFR_perfect_2 |>
+  forecast(new_data = singapore_future)
+```
+
+```{r}
+TFR_perfect_2_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "add later",
+    caption = stringr::str_wrap("add later", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+TFR_perfect_3 <-singapore_train |>
+  model(
+    tfr_sarima_policy_3 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,1,2) + PDQ( period = 12))
+  )
+TFR_perfect_3 |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
+```
+
+```{r}
+tfr_perfect3_resid <- augment(TFR_perfect_3)
+tfr_perfect3_resid |> 
+  ACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_3 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,1,2) + PDQ( period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+tfr_perfect3_resid |> 
+  PACF(.resid) |>
+  autoplot() +
+  labs( caption = stringr::str_wrap("tfr_sarima_policy_3 = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(2,1,2) + PDQ( period = 12))"))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+```
+
+```{r}
+TFR_perfect_3_fc <- TFR_perfect_3 |>
+  forecast(new_data = singapore_future)
+```
+
+```{r}
+TFR_perfect_3_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "add later",
+    caption = stringr::str_wrap("add later", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+```{r}
+TFR_no_policy <- singapore_train |>
+  model(
+    tfr_nopolicy_sarima = ARIMA(log_TFR ~ pdq(2,0,2) + PDQ(period = 12))
+  )
+
+TFR_no_policy |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")
+
+tfr_no_policy_resid <- augment(TFR_no_policy)
+
+# ACF Plot
+tfr_no_policy_resid |> 
+  ACF(.resid) |> 
+  autoplot()
+
+# PACF Plot
+tfr_no_policy_resid |> 
+  PACF(.resid) |> 
+  autoplot()
+```
+
+```{r}
+TFR_no_policy_fc <- TFR_no_policy |>
+  forecast(new_data = singapore_future)
+```
+
+```{r}
+TFR_no_policy_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "add later",
+    caption = stringr::str_wrap("add later", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+
+```{r}
+TFR_no_policy2 <- singapore_train |>
+  model(
+    tfr_base_sarima2 = ARIMA(log_TFR ~ pdq(2,1,2) + PDQ(period = 12))
+  )
+
+tfr_no_policy_resid2 <- augment(TFR_no_policy2)
+
+# ACF Plot
+tfr_no_policy_resid2 |> 
+  ACF(.resid) |> 
+  autoplot()
+
+# PACF Plot
+tfr_no_policy_resid2 |> 
+  PACF(.resid) |> 
+  autoplot()
+```
+
+```{r}
+TFR_no_policy2_fc <- TFR_no_policy2 |>
+  forecast(new_data = singapore_future)
+```
+
+```{r}
+TFR_no_policy2_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "add later",
+    caption = stringr::str_wrap("add later", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+
+
+-----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
