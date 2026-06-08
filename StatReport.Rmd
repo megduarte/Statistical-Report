@@ -796,7 +796,7 @@ This report aimed to find a model capable of accurately predicting the future To
 
 The transition to a Seasonal ARIMA (SARIMA) model took the 12-year, Year of the Dragon, cycle into consideration. This cyclicality could be seen in Figs. 7,8,9, and 10 with spikes at lags 11, 12, and 13. 
 
-In order to accomplish this, the government policies were added into the models. The forecasted plot for the TFR, Fig. 29, shows that the forecasted data follows the actual data very well. The forecasted plot for the TLB, Fig. 32, shows that the known data is within the 95% confidence interval but the data drops much more drastically than the forecasted data does. 
+In order to accomplish this, the government policies were added into the models. The forecasted plot for the TFR, Fig. 29, shows that the forecasted data follows the actual data very well. The forecasted plot for the TLB, Fig. 32, shows that the known data is within the 95% confidence interval but the data drops much more drastically than the forecasted data does. Further exploration of the data would have to be done to determine if even better models could be made. 
 
 
 
@@ -811,3 +811,7 @@ In order to accomplish this, the government policies were added into the models.
 [4] Tan, T. (2025). 2024 is first Dragon Year since 1964 that failed to lift Singapore’s fertility rate. [online] The Straits Times. Available at: https://www.straitstimes.com/singapore/community/2024-the-year-in-singapore-the-dragon-failed-to-deliver-the-stork.
 
 [5] Hyndman, R.J. and Athanasopoulos, G. (2021). 9.9 Seasonal ARIMA models | Forecasting: Principles and Practice (3rd ed). [online] otexts.com. OTexts. Available at: https://otexts.com/fpp3/seasonal-arima.html.
+
+
+## Github Link
+https://github.com/megduarte/Statistical-Report.git
