@@ -1,7 +1,7 @@
 ---
 title: "Predicting Fertility and Birth Rates in Singapore from 2013-2024 Using Data from 1960-2012"
-author: "Meghan Duarte"
-date: "2026-05-23"
+author: "Meghan Duarte A1906614"
+date: "June 08, 2026"
 output:
   pdf_document: default
   html_document: default
@@ -117,12 +117,12 @@ singapore |> autoplot(log_TLB) +
         )
 ```
 
-The data was then differenced to further stabilize the variance and create stationarity. This can be seen in fig 5 and Fig 6.  
+The data was then differenced to further stabilize the variance and create stationarity. This can be seen in Fig. 5 and Fig 6.  
 
 ```{r fig 5, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
 singapore |> autoplot(difference(log_TFR, 1)) +
   labs(title = "First-Order difference of Log TFR (1960-2024)",
-       caption = stringr::str_wrap("Figure 5. Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
+       caption = stringr::str_wrap("Fig. 5. Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
        y = "Change in log(TFR)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
@@ -134,7 +134,7 @@ singapore |> autoplot(difference(log_TFR, 1)) +
 ```{r fig 6, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
 singapore |> autoplot(difference(log_TLB, 1)) +
   labs(title = "First-Order difference of Log TLB (1960-2024)",
-       caption = stringr::str_wrap("Figure 6. Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), 
+       caption = stringr::str_wrap("Fig. 6. Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), 
        width = 80,
        y = "Change of log(TLB)",
        x = "Year") +
@@ -757,6 +757,9 @@ tlb_perfect_acf <- tlb_perfect_resid |>
   labs(
     title = "ACF Plot of SARIMA(2,1,2)(1,0,1)[12] Model for TLB",
     caption = stringr::str_wrap("Fig. 30. Shows ACF plot for the SARIMA(2,1,2)(1,0,1)[12] model with the government policies for TLB has no spikes, indicating white noise.")
+  )+
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
   )
 tlb_perfect_pacf <- tlb_perfect_resid |> 
   PACF(.resid) |>
