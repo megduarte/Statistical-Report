@@ -19,21 +19,22 @@ library(tsibble)
 library(feasts)
 library(fable)
 library(patchwork)
+library(knitr)
 ```
 
 # Abstract
 
-In Singapore, there has been a decline in both fertility rates and live-birth rates since 1960. While the total live-births increased around 1987, they have been on the decline ever since. In this report, we aim to see if we can successfully create a model that can predict the future birth and fertility rates in Singapore. Furthermore, we aim to see if the government policies have a statistically significant effect on the TLB and TFR. This is done using the Births And Fertility Rates, Annual data set from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset runs from 1960-2024, the data from 1960-2012 is as a training set for the model and the model will forecast the TLB and TFR from 2013-2024. The success of the model will be based off of the ACF and PACF plots as well as comparing the forecasted values to the known dataset. There will be a model for predicting the Total Fertility Rate (TFR) in Singapore as well as one predicting the Total Live-Births (TLB) in Singapore.
+In Singapore, there has been a decline in both fertility rates and live-birth rates since 1960. While the total live-births increased around 1987, they have been on the decline ever since. In this report, we aim to see if we can successfully create a model that can predict the future birth and fertility rates in Singapore. Furthermore, we aim to see if the government policies have a statistically significant effect on the TLB and TFR. This is done using the Births And Fertility Rates, Annual data set from the Singapore Department of Statistics, Immigration and Checkpoints Authority. This report finds that a model that includes the government policies and accounts for the 12-year effect of the Year of the Dragon, is successful at forecasting the values of the Total Fertility Rate as well as the Total-Live Births in Singapore. 
 
 # Introduction
 
-The Singaporean government previously has had family planning policies in place that pushed heavily for limiting your family size to two children or fewer. In 1966 a board was put together to deal with family planning in Singapore. They helped with educating on family planning (what it is and how to do it) and providing contraception. Sterilization was legalized in Singapore in 1970 and abortion was legalized in 1969. However, the government family planning policies specifically started in 1972 with the "Stop at Two" policy. This lasted until 1987 when the government shifted to a policy that encouraged couples to increase their family sizes [2]. This shift occurred as the elderly, retired, population is larger than the younger, working, age group. This puts a large financial strain on a country as ideally you have a larger working population to generate income and contribute to taxes that help fund programs such as social security. Despite the governments interference in 1987, the TFR and TLB rates have not yet recovered. It was expected that there would be a rise in 2024 as it was the Year of the Dragon; in Singapore this is a desired year to have a child in. It is believed that if you are born in the Year of the Dragon that you are going to be wise and confident and you will do well in life [3]. However, despite it being the Year of the Dragon, neither TLB nor TFR increased in 2024 [4].
+The Singaporean government previously has had family planning policies in place that pushed heavily for limiting your family size to two children or fewer. In 1966 a board was put together to deal with family planning in Singapore. They helped with educating on family planning (what it is and how to do it) and providing contraception. Sterilization was legalized in Singapore in 1970 and abortion was legalized in 1969. However, the government family planning policies specifically started in 1972 with the "Stop at Two" policy. This lasted until 1987 when the government shifted to a policy that encouraged couples to increase their family sizes [2]. This shift occurred as the elderly, retired, population is larger than the younger, working, age group. This puts a large financial strain on a country as ideally you have a larger working population to generate income and contribute to taxes that help fund programs such as social security. Despite the governments interference in 1987, the TFR and TLB rates have not yet recovered. It was expected that there would be a rise in 2024 as it was the Year of the Dragon; in Singapore this is a desired year to have a child in. It is believed that if you are born in the Year of the Dragon that you are going to be wise and confident and you will do well in life [3]. However, despite it being the Year of the Dragon, neither TLB nor TFR increased in 2024 [4].The dataset runs from 1960-2024, the data from 1960-2012 is used as a training set for the models and the models will forecast the TLB and TFR from 2013-2024. The success of the model will be based off of the ACF and PACF plots as well as comparing the forecasted values to the known dataset. There will be a model for predicting the Total Fertility Rate (TFR) in Singapore as well as one predicting the Total Live-Births (TLB) in Singapore. These models are compared to models that take the government policies into consideration. 
 
 # Methods
 
 A. Data Preparation
 
-The birth and fertility data utilized in this report was obtained from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset is comprised of the Total Fertility Rate (TFR), 15-19 Years, 20-24 Years, 25-29 Years, 30-34 Years, 35-39 Years, 40-44 Years, 45-49 Years, Chinese, Malays, Indians, Gross Reproduction Rate, Net Reproduction Rate, Crude Birth Rate, Total Live-Births, Resident Live-Births, Citizen Live-Births. For this report only Total Fertility Rate (TFR), and Total Live-Births were used. There are no missing values in this data set, however the data had to be transformed from having the individual years as columns and TFR and TLB as rows. A column was created called 'Years' and all years, 1960-2024, were place under, TFR and TLB were made into columns as well. TFR and TLB are then log transformed to help stabilize the variance.
+The birth and fertility data utilized in this report was obtained from the Singapore Department of Statistics, Immigration and Checkpoints Authority. The dataset is comprised of the Total Fertility Rate (TFR), 15-19 Years, 20-24 Years, 25-29 Years, 30-34 Years, 35-39 Years, 40-44 Years, 45-49 Years, Chinese, Malays, Indians, Gross Reproduction Rate, Net Reproduction Rate, Crude Birth Rate, Total Live-Births, Resident Live-Births, Citizen Live-Births. For this report only Total Fertility Rate (TFR), and Total Live-Births were used. There are no missing values in this data set, however the data had to be transformed from having the individual years as columns and TFR and TLB as rows. A column was created called 'Years' and all years, 1960-2024, were place under, TFR and TLB were made into columns as well. TFR and TLB are then log transformed to help stabilize the variance. Fig.1 Shows the plot of the TFR in Singapore from 1960 to 2024. Fig. 2 Shows the plot of the log-transformed TFR in Singapore from 1960 to 2024. Fig.3 Shows the plot of the TLB in Singapore from 1960 to 2024. Fig. 4 Shows the plot of the log-transformed TLB in Singapore from 1960 to 2024.
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE}
 singapore <- read.csv('BirthsAndFertilityRatesAnnual.csv')
@@ -59,7 +60,7 @@ singapore <- clean_data |>
 ```{r fig 1, fig.width =5, fig.height=3.5, fit.align = "center", message=FALSE, warning=FALSE, echo = FALSE}
  singapore |> autoplot(`Total Fertility Rate (TFR)`) +
   labs(title = "Total Fertility Rate (1960-2024)",
-       caption = "Figure 1. Plot of the Total Fertility Rate in Singapore from 1960 to 2024.",
+       caption = "Fig. 1. Plot of the Total Fertility Rate in Singapore from 1960 to 2024.",
        y = "Total Fertility Rate",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
@@ -75,7 +76,7 @@ singapore <- singapore |>
   )
 singapore |> autoplot(log_TFR) +
   labs(title = "Log-Transformed Total Fertility Rate (1960-2024)",
-       caption = stringr::str_wrap("Figure 3. Plot of the Total Fertility Rate with a log transformation in Singapore from 1960 to 2024."), width = 80,
+       caption = stringr::str_wrap("Fig. 2. Plot of the Total Fertility Rate with a log transformation in Singapore from 1960 to 2024."), width = 80,
        y = "log(Total Fertility Rate)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
@@ -90,7 +91,7 @@ singapore |> autoplot(log_TFR) +
     title = "Total Live-Births (1960-2024)",
     caption = stringr::str_wrap(
       paste0(
-        "Figure 2. Plot of the Total Live-Births in Singapore from",
+        "Fig. 3. Plot of the Total Live-Births in Singapore from",
         " 1960 to 2024 shows that it follows a roughly similar trend",
         " as the plot of the Total Fertility Rate."
       ), 
@@ -108,7 +109,7 @@ singapore |> autoplot(log_TFR) +
 
 singapore |> autoplot(log_TLB) +
   labs(title = "Log-Transformed Total Live-Births (1960-2024)",
-       caption = stringr::str_wrap("Figure 4. Plot of the Total Live-Births with a log transformation in Singapore from 1960 to 2024."), width = 80,
+       caption = stringr::str_wrap("Fig. 4. Plot of the Total Live-Births with a log transformation in Singapore from 1960 to 2024."), width = 80,
        y = "log(Total Live-Births)",
        x = "Year") +
   theme(plot.caption = element_text(hjust = 0.5),
@@ -116,20 +117,688 @@ singapore |> autoplot(log_TLB) +
         )
 ```
 
-B. The ARIMA model
+The data was then differenced to further stabilize the variance and create stationarity. This can be seen in fig 5 and Fig 6.  
+
+```{r fig 5, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
+singapore |> autoplot(difference(log_TFR, 1)) +
+  labs(title = "First-Order difference of Log TFR (1960-2024)",
+       caption = stringr::str_wrap("Figure 5. Plot of the first-order difference of the log transformed Total Fertility Rate in Singapore from 1960 to 2024."), width = 80,
+       y = "Change in log(TFR)",
+       x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+        )
+```
+
+
+```{r fig 6, fig.width =5, fig.height=3.5 ,message=FALSE, warning=FALSE, echo = FALSE}
+singapore |> autoplot(difference(log_TLB, 1)) +
+  labs(title = "First-Order difference of Log TLB (1960-2024)",
+       caption = stringr::str_wrap("Figure 6. Plot of the first-order difference of the log transformed Total Live-Births in Singapore from 1960 to 2024."), 
+       width = 80,
+       y = "Change of log(TLB)",
+       x = "Year") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+        )
+```
+
+
+B. The ARIMA Model
 
 ARIMA models can be used for modeling data with trends. It is outline by the definition provided in Introduction to Time Series and Forecasting by Brockwell and Davis, "if *d* is a nonnegative integer, then ${X_t}$ is an $ARIMA(pdq)$ process if $Y_t := (1- B)^d X_t$ is a causal $ARMA(p,q)$ process" [1]. Therefore, ${X_t}$ satisfies an equation of the form
 
 $\phi^* (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$.
 
+The initial model is an $ARIMA(0,1,0)$, this can be written as:
+$(1)(1-B)X_t=(1)Z_t$
+
+$(1-B)X_t=Z_t$.
+
+C. The SARIMA Model
+A SARIMA model is a Seasonal ARIMA model. As the data have a 12 year cyclical pattern, likely due to the Year of the Dragon, a SARIMA model is applied to the data. A SARIMA model has a non-seasonal part: $(p,d,q)$ and a seasonal part: $(PDQ)_m$, where $m$ is the seasonal period [5]. It is defined by 
+
+$\phi (B) \Theta (B^s) Y_t = \theta(B) \Theta(B^s) Z_t \quad ,{Z_t} \sim WN(0,\sigma ^2)$ ,
+
+where $\phi(z)=1-\phi_1 z-...-\phi_p z^p$, $\Phi(z)= 1-\Phi_1 z-...- \Phi_p z^p$, $\theta(z)=1+\theta_1 z + \cdots + \theta_q z^p$, and $\Theta(z) = 1+\Theta_1 z + \cdots \Theta_Q z^Q$ [1]
 
 
+The final model for TFR, $SARIMA(1,1,0)(1,1,0)_12$ can be written as
+
+$(1-\phi_1 B)(1-\Phi_1 B^{12})(1-B)(1-B^{12})y_t=\epsilon_t$.
+
+The final model for TLB, $SARIMA(2,1,2)(1,0,1)_12$, can be written as
+
+$(1-\phi_1 B -\phi_2 B^2)(1-\Phi_1 B^{12})(1-B)y_t = (1+\theta_1 B+ \theta_2 B^2)(1+\Theta_1 B^{12})\epsilon_t$.
 
 # Results
 
-# Discussion
+
+```{r PACFTFRplot, message=FALSE, warning=FALSE, echo = FALSE}
+acf_tbr_1 <- singapore |> ACF(difference(log_TFR, 1)) |>
+  autoplot() +
+  labs(title = "ACF of First-Order Differenced Log TFR (1960-2024)",
+       caption = stringr::str_wrap("Fig. 7. Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", 
+       width = 80)
+       ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+)
+pacf_tbr_1 <- singapore |> PACF(difference(log_TFR, 1)) |>
+  autoplot() +
+  labs(title = "PACF of First-Order Differenced Log TFR (1960-2024)",
+       caption = stringr::str_wrap("Fig. 8. Partial Autocorrelation Function of the stationary Total Fertility Rate data in Singapore from 1960-2024.", width = 80)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+)
+acf_tbr_1 / pacf_tbr_1 
+```
+
+```{r PACFTLBplot, message=FALSE, warning=FALSE, echo = FALSE}
+acf_tlb_1 <- singapore |> ACF(difference(log_TLB, 1)) |>
+  autoplot() +
+  labs(title = "ACF of First-Order Differenced Log TLB (1960-2024)",
+       caption = stringr::str_wrap("Fig. 9. Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024." ,width = 80)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+
+pacf_tlb_1 <- singapore |> PACF(difference(log_TLB, 1)) |>
+  autoplot() +
+  labs(title = "PACF of First-Order Differenced Log TLB (1960-2024)",
+       caption = stringr::str_wrap("Fig. 10. Partial Autocorrelation Function of the stationary Total Live-Births data in Singapore from 1960-2024." ,width = 80)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+acf_tlb_1 / pacf_tlb_1
+```
+
+
+The spikes at lags 11,12,13 in figures 7,8,9, and 10 show that there's a cyclic behaviour. The year of the Dragon historically has had an effect on birth rates in Singapore. Culturally, it is "considered auspicious for births" [4]. The Year of the Dragon comes every 12 years, which lines up perfectly with the spikes. 
+
+The ARIMA model for both TFR and TLB would then be chosen to be ARIMA(0,1,0). The ARIMA model is chosen with this in mind: ARIMA(p,d,q). Where p is the value chosen by looking at immediate lags that spike on the PACF, d is chosen by the differencing, and q is chosen by looking at immediate lags that spike on the ACF.
+
+```{r echo=FALSE}
+TFR_Model1 <- singapore |>
+  model(
+    tfr_baseline = ARIMA(log_TFR ~ pdq(0,1,0)),
+    tfr_auto = ARIMA(log_TFR))
+TFR_Model1 |> pivot_longer(everything(), names_to = "Model name", values_to = "Estimated Orders") |>
+  kable(
+    caption = "This comparison table shows that the auto ARIMA model chose for the Total Fertility Rate is the same as the chosen ARIMA model: ARIMA(0,1,0).",
+    align = c("l", "c")
+  )
+TFR_Model1 |>
+  tidy() |>
+  rename(
+    'Model' = .model,
+    'Parameter' = term,
+    'Estimate' = estimate,
+    'Std. Error' = std.error,
+    'Statistic' = statistic,
+    'p-value' = p.value
+  ) |>
+  kable(
+    digits = 4,
+    caption = "This comparison table of the chosen TFR baseline ARIMA model and the automatically chose TFR ARIMA model confirms that they are identical.",
+    align = c("l","l","c","c","c","c")
+  )
+```
+```{r ARIMA1TFRplots, message=FALSE, warning=FALSE, echo = FALSE}
+TFR_Model1 |> 
+  select(tfr_auto) |> gg_tsresiduals() +
+  labs(title = "1960-2024 TFR ARIMA (0,1,0) Plots") +
+  theme(plot.title = element_text(hjust = 0.5)
+       )
+```
+Fig. 11. Plots showing the ARIMA(0,1,0) model for Total Fertility Rate in Singapore from 1960-2024. The residuals plot shows the errors bounding roughly around zero. The ACF plot shows spikes at lags 11, 12, and 13. The histogram is unimodal with an abrupt drop off around 0.05 and an outlier around 0.2.
+
+```{r echo=FALSE}
+TLB_Model1 <- singapore |>
+  model(
+    tlb_baseline = ARIMA(log_TLB ~ pdq(0,1,0)),
+    tlb_auto = ARIMA(log_TLB))
+TLB_Model1 |> pivot_longer(everything(), names_to = "Model name", values_to = "Estimated Orders") |>
+  kable(
+    caption = "This comparison table shows that the auto ARIMA model chose for the Total Live-Births is the same as the chosen ARIMA model: ARIMA(0,1,0).",
+    align = c("l", "c")
+  )
+TLB_Model1 |>
+  tidy() |>
+  rename(
+    'Model' = .model,
+    'Parameter' = term,
+    'Estimate' = estimate,
+    'Std. Error' = std.error,
+    'Statistic' = statistic,
+    'p-value' = p.value
+  ) |>
+  kable(
+    digits = 4,
+    caption = "This comparison table of the chosen TLB baseline ARIMA model and the automatically chose TLB ARIMA model confirms that they are identical.",
+    align = c("l","l","c","c","c","c")
+  )
+```
+
+
+```{r ARIMA1TLBplots, message=FALSE, warning=FALSE, echo = FALSE}
+TLB_Model1 |> 
+  select(tlb_auto) |> gg_tsresiduals() +
+  labs(title = "1960-2024 TLB ARIMA (0,1,0) Plots") +
+  theme(plot.title = element_text(hjust = 0.5)
+       )
+```
+Fig. 12. Plots showing the ARIMA(0,1,0) model for Total Live Births in Singapore from 1960-2024. The residuals plot shows the errors bounding roughly around zero. The ACF plot shows spikes at lags 11, 12, and 13. The histogram is unimodal with an outlier around 0.2.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+singapore_Train <- singapore |>
+  filter(Year <= 2012)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_train_model1 <- singapore_Train |>
+  model(tfr_train_baseline = ARIMA(log_TFR ~ pdq(0,1,0)))
+TFR_train_forecast <- TFR_train_model1 |>
+  forecast(h=12)
+TFR_train_forecast |> autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "ARIMA(0,1,0) Predicted vs Actual TFR",
+    caption = stringr::str_wrap(
+      "Fig. 13. Plot shows that the predictive model aligns very well with the actual data for the 2013-2024 period for the Total Fertility Rate in Singapore." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
+```
+Fig. 13 shows that the predictive Total Fertility Rates in Singapore from 2013-2024 using the ARIMA model line up very well with the actual data. However, the line is linear and has no "wiggle" to it. We can see from the real data how the log of the Total Fertility Rate that while it has an overall downward trend, the data actually wiggles up and down. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_train_model1 <- singapore_Train |>
+  model(tlb_train_baseline = ARIMA(log_TLB ~ pdq(0,1,0)))
+TLB_train_forecast <- TLB_train_model1 |>
+  forecast(h=12)
+TLB_train_forecast |> autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = "ARIMA(0,1,0) Predicted vs Actual TLB",
+    caption = stringr::str_wrap(
+      "Fig. 14. Plot shows that the ARIMA model predicts a straight line for the log of the TLB in Singapore from 2013-2024." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
+```
+Fig. 11, 12, 13, and 14 show that an ARIMA model is not adequate enough at making a predictive model of the Total Live Births and Total Fertility Rate from 2013-2024 based on the data from 1960-2012. 
+
+
+From the ACFs and PACFs we can see that there is an impact on the data due to the Year of the Dragon increasing TFR and TLB every 12 years. We can take this into account by creating a SARIMA model with a period of 12. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_Model2 <- singapore |>
+  model(
+    tfr_baseline = ARIMA(log_TFR ~ pdq(0,1,0)),
+    tfr_sarima = ARIMA(log_TFR ~ pdq() + PDQ(period = 12))
+  )
+
+TFR_Model2 |> pivot_longer(everything(), names_to = "Model name", values_to = "Estimated Orders") |>
+  kable(
+    caption = "Shows the automated search selects a SARIMA(0,1,1)(1,0,1)[12] model with drift for the Total Fertility Rate data.",
+    align = c("l", "c")
+  )
+TFR_Model2 |>
+  glance() |>
+  select(.model, sigma2, AIC, AICc, BIC) |>
+  rename(
+    'Model' = .model,
+    'Variance (sigma^2)' = sigma2,
+    'AIC' = AIC,
+    'AICc' = AICc,
+    'BIC' = BIC
+  ) |>
+  kable(
+    digits = 4,
+    caption = "Shows the SARIMA(0,1,1)(1,0,1)[12] model for Total Fertility Rate has a lower AIC at around -183, nearly 10 points lower when compared to the ARIMA(0,1,0) model for Total Fertility Rate. The BIC is also lower for the SARIMA model, and the sigma^2 value is also significantly lower for the SARIMA model. ",
+    align = c("l","l","c","c","c","c")
+  )
+```
+All of the values in table 6 confirm that a seasonal ARIMA model is better at handling the Total Fertility Rate data in Singapore from 1960-2024. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_train_sarima <- singapore_Train |>
+  model(TFR_sarima = ARIMA(log_TFR ~ pdq() + PDQ( period = 12)))
+TFR_train_sarima |>
+  pivot_longer(everything(), names_to = "Model", values_to = "Selected Model Order")|>
+  kable(
+    caption = "Shows that the selected model for the training dataset for Total Fertility Rate in Singapore from 1960-2012 is a SARIMA(1,2,1)(1,0,0)[12] model. ",
+    align = c("l","c")
+  )
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_train_sarima_fc <- TFR_train_sarima |>
+  forecast(h = 12)
+TFR_train_sarima_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "SARIMA plot of predicted vs actual TFR",
+    caption = stringr::str_wrap(
+      "Fig. 15. Plot shows that the SARIMA predictive model shows fertility rates in singapore from 2013-2024 that are on par with the known data." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
+```
+
+Fig. 15 shows that the SARIMA(0,1,1)(1,0,1)[12] model predicts similar Total Fertility Rates to that of the actual data for Total Fertility Rates in Singapore from 2013-2024. Unlike the ARIMA predictive model seen in Fig. 13, the SARIMA(0,1,1)(1,0,1)[12] model accounts for seasonality. In the ARIMA model, the predicted values for 2013-2024, was a straight line with a negative slope. The predictive center line for the SARIMA model has "wiggle" to it, accounting for rises and drops in the TFR. This looks much more similar to the actual data. It can be seen that the predictive model curves up at the end, whereas the actual data is down turned. 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_Model2 <- singapore |>
+  model(
+    tlb_baseline = ARIMA(log_TLB ~ pdq(0,1,0)),
+    tlb_sarima = ARIMA(log_TLB ~ pdq() + PDQ(period = 12))
+  )
+TLB_Model2 |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")|>
+  kable(
+    caption = "Shows the automated search selects a SARIMA(1,1,0)(1,0,0)[12] model for the Total Live-Births data. ",
+    align = c("l","c")
+  )
+TLB_Model2 |>
+  glance() |>
+  select(.model, sigma2, AIC, AICc, BIC) |>
+  rename(
+    'Model' = .model,
+    'Variance (sigma^2)' = sigma2,
+    'AIC' = AIC,
+    'AICc' = AICc,
+    'BIC' = BIC
+  ) |>
+  kable(
+    digits = 4,
+    caption = "Shows the SARIMA(1,1,0)(1,0,0)[12] model for Total Live-Births has a lower AIC at around -191, over 10 points lower when compared to the ARIMA(0,1,0) model for Total Live-Births. The BIC is also lower for the SARIMA model, and the sigma^2 value is also significantly lower for the SARIMA model. ",
+    align = c("l","l","c","c","c","c")
+  )
+```
+
+All of the values in table 9 confirm that a seasonal ARIMA model is better at handling the Total Live-Births data in Singapore from 1960-2024. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_train_sarima <- singapore_Train |>
+  model(TLB_sarima = ARIMA(log_TLB ~ pdq() + PDQ( period = 12)))
+TLB_train_sarima|>
+  pivot_longer(everything(), names_to = "Model", values_to = "Selected Model Order")|>
+  kable(
+    caption = "Shows that the selected model for the training dataset for Total Live-Births in Singapore from 1960-2012 is a SARIMA(0,1,0)(1,0,0)[12] model.",
+    align = c("l","c")
+  )
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_train_sarima_fc <- TLB_train_sarima |>
+  forecast(h = 12)
+TLB_train_sarima_fc |>
+  autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = "SARIMA plot of predicted vs actual TLB",
+    caption = stringr::str_wrap(
+      "Fig. 16. Plot shows that the SARIMA predictive model shows similar levels for the total live-births in singapore from 2013-2024 when compared to the known data." ,width = 80
+    )
+  )+
+theme(
+  plot.title = element_text(hjust = 0.5),
+  plot.caption = element_text(hjust = 0)
+)
+```
+Fig. 16 shows that the predicted Total Live-Births from the SARIMA(1,1,0)(1,0,0)[12] model is on par with the known Total Live-Births data in Singapore from 2013-2024. Similarly to the Total Fertility-Rate Fig. 13 and Fig. 15, Fig. 16 and the ARIMA model seen in Fig. 14, also demonstrates how SARIMA is a better model to pick for this singapore data set. Similar to Fig. 15, we can see in Fig. 16 that the predictive model shows the data spiking at the end, whereas the actual data takes a sharp turn downwards. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+tfr_resid <- augment(TFR_train_sarima)
+tfr_sarima1_acf <- tfr_resid |> ACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "ACF of SARIMA model for TFR ",
+    caption = stringr::str_wrap("Fig. 17. ACF Plot of the SARIMA model shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+tfr_sarima1_pacf <- tfr_resid |> PACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "PACF of SARIMA model for TFR ",
+    caption = stringr::str_wrap("Fig. 18. PACF Plot of the SARIMA model shows that there is a spike at lag 15 and potentially at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+tfr_sarima1_acf / tfr_sarima1_pacf 
+```
+
+Fig. 17 and Fig. 18 show that some of the later lags spike, in Fig. 17 only lag 13 spikes, and in Fig. 18 lags 13 and 15 both spike. This shows that SARIMA model for the Total Fertility Rate in Singapore is fairly accurate.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+tlb_resid <- augment(TLB_train_sarima)
+tlb_sarima1_acf <- tlb_resid |> ACF(.resid) |>
+  autoplot()  +
+  labs(
+    title = "ACF of SARIMA model for TLB in Singapore ",
+    caption = stringr::str_wrap("Fig. 19. ACF Plot of the predictive SARIMA shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+tlb_sarima1_pacf <- tlb_resid |> PACF(.resid) |>
+  autoplot()  +
+  labs(
+    title = "PACF of SARIMA model for TLB in Singapore ",
+    caption = stringr::str_wrap("Fig. 20. PACF Plot of the predictive SARIMA shows that there is a spike only at lag 13.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+tlb_sarima1_acf/tlb_sarima1_pacf
+```
+Fig. 19 and Fig. 20 show the ACF and PACF for the Total Live-Births in Singapore. They both show spikes at lag 13. Our models are not yet sufficient. We seek to find out if taking the two main government policies on family planning into account. The first policy, "Stop at Two" went from 1972 until 1987, when they switched to the "Have three or more, if you can afford it" policy [4]. To take these policies into effect, two columns are added into the data: Stop at Two and Three or More. Stop at Two reports TRUE if the data is between years 1972-1986. Three or More reports TRUE if the data is from 1987-2024. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+singapore <- singapore |>
+  mutate(
+    small_family_push = (Year >=1972) & (Year <= 1986), 
+    big_family_push = (Year >=1987)
+  )
+singapore |>
+  rename(
+    "Stop at Two" = small_family_push,
+    "Three or More" = big_family_push
+  ) |>
+  select(Year, 'Total Fertility Rate (TFR)','Total Live-Births', 'Stop at Two', 'Three or More') |>
+  filter(Year>=1970 & Year <= 1990) |>
+  kable(
+    caption = "Snapshot of Singapore Data from 1970-1990 with Policy Variables.",
+    align = c("c","c","c","c")
+  )
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+singapore_train <- singapore |>
+  filter(Year <= 2012)
+TFR_policy_model <- singapore_train |>
+  model(
+    tfr_train_sarima = ARIMA(log_TFR ~ pdq() + PDQ(period = 12)),
+    tfr_sarima_policy = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq() + PDQ( period = 12))
+  )
+TFR_policy_model |> pivot_longer(everything(), names_to = "Model", values_to = "Orders") |>
+  kable(
+    caption = "Shows that the chosen SARIMA model for the TFR training data (1960-2012) is SARIM(1,2,1)(1,0,0)[12], this is also seen in table 11. Table 15 also shows that the chosen SARIMA for the model that takes account for the policy years is LM with ARIMA(1,0,3)(1,0,0)[12]. ",
+    align = c("l","c")
+  )
+TFR_policy_model|>
+  glance() |>
+  select(.model, sigma2, AIC, AICc, BIC) |>
+  rename(
+    'Model' = .model,
+    'Variance (sigma^2)' = sigma2,
+    'AIC' = AIC,
+    'AICc' = AICc,
+    'BIC' = BIC
+  ) |>
+  kable(
+    digits = 4,
+    caption = "Shows that the sigma ^2, AIC, and BIC were lower for the model that take the government policies into account. ",
+    align = c("l","l","c","c","c","c")
+  )
+```
+
+
+
+It can be seen from table 13 that the model that includes the government policies is a better model than the regular sarima model as it has a lower $\sigma ^2$, AIC, and BIC.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+singapore_future <- singapore |>
+  filter(Year >=2013)
+TFR_policy_fc <- TFR_policy_model |>
+  select(tfr_sarima_policy) |>
+  forecast(new_data = singapore_future)
+TFR_policy_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = "Predictive Model with Policies vs Know TFR",
+    caption = stringr::str_wrap("Fig. 21. Plot of the predictive SARIMA(1,0,3)(1,0,0)[12] model shows that the SARIMA model that takes the government's family planning policies into account, follows the known TFR data fairly well.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+Both Fig. 21 and table 13 confirm that the predictive models that account for the two different stages of Singaporean government family planning policies is better at predicting the values for the Total Fertility Rate in Singapore from 2013-2024 than a SARIMA model that does not take these policies into consideration. Fig. 15 shows the plot of the SARIMA plot predicting the values for the 2013-2024 period compared to the actual data, and it was seen that at the end of the time period the model predicts the TFR will increase, whereas the actual data downturns. In Fig. 21, it can be seen that while the predictive data does not drop as much as the actual data does, it is downturned, like the actual data. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_policy_model <- singapore_train |>
+  model(
+    tlb_train_sarima = ARIMA(log_TLB ~ pdq() + PDQ(period = 12)),
+    tlb_sarima_policy = ARIMA(log_TLB ~ small_family_push + big_family_push + pdq() + PDQ( period = 12))
+  )
+TLB_policy_model |> pivot_longer(everything(), names_to = "Model name", values_to = "Orders")|>
+  kable(
+    caption = "Shows that the chosen SARIMA model for the TLB training data (1960-2012) is SARIMA(0,1,0)(1,0,0)[12], this is also seen in table 14. Table 15 also shows that the chosen SARIMA for the model that takes account for the policy years is LM with ARIMA(1,0,0)(1,0,0)[12]. ",
+    align = c("l","c")
+  )
+TLB_policy_model|>
+  glance() |>
+  select(.model, sigma2, AIC, AICc, BIC) |>
+  rename(
+    'Model' = .model,
+    'Variance (sigma^2)' = sigma2,
+    'AIC' = AIC,
+    'AICc' = AICc,
+    'BIC' = BIC
+  ) |>
+  kable(
+    digits = 4,
+    caption = "Shows that the sigma ^2, AIC, and BIC were lower for the model that take the government policies into account. ",
+    align = c("l","l","c","c","c","c")
+  )
+```
+
+It can be seen from table 18 that the model that includes the government policies for the Total Live-Births is a better model than the regular sarima model as it has a lower $\sigma ^2$, AIC, and BIC.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_policy_fc <- TLB_policy_model |>
+  select(tlb_sarima_policy) |>
+  forecast(new_data = singapore_future)
+
+TLB_policy_fc |>
+  autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = "Predictive Model with Policies vs Know TLB",
+    caption = stringr::str_wrap("Fig. 22. Plot of the predictive SARIMA(1,0,0)(1,0,0)[12] model shows that the SARIMA model that takes the government's family planning policies into account, follows the known TLB data fairly well.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+It can be seen that Fig. 22 follows the actual data fairly well, but it does not drop nearly as much as the actual data does around 2021. 
+
+By looking at Fig. 21 and Fig.22 the SARIMA(1,0,3)(1,0,0)[12] model for the TFR and the SARIMA(1,0,0)(1,0,0)[12] model for the TLB appear to be sufficient at predicting. However, the ACF and PACF plots must be evaluated in order to know this. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+tfr_policy_resid <- augment(TFR_policy_model)
+tfr_plolicy_acf <- tfr_policy_resid |> 
+  filter(.model == "tfr_sarima_policy") |>
+  ACF(.resid) |>
+  autoplot() +
+  labs( 
+    title = "ACF Plot of SARIMA(1,0,3)(1,0,0)[12] Model for TFR",
+    caption = stringr::str_wrap("Fig. 23. Shows ACF plot for the SARIMA(1,0,3)(1,0,0)[12] Model with the government policies for TFR has a spike at lag 8."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+tfr_plolicy_pacf <- tfr_policy_resid |> 
+  filter(.model == "tfr_sarima_policy") |>
+  PACF(.resid) |>
+  autoplot() +
+  labs( 
+    title = "PACF Plot of SARIMA(1,0,3)(1,0,0)[12] Model for TFR",
+    caption = stringr::str_wrap("Fig. 24. Shows PACF plot for the SARIMA(1,0,3)(1,0,0)[12] Model with the government policies for TFR has a spike at lag 8 and lag 15."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+tfr_plolicy_acf/tfr_plolicy_pacf
+```
+Fig. 23 and Fig. 24 show that there are still spikes for this SARIMA model for TFR so a better model is required. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+tlb_policy_resid <- augment(TLB_policy_model)
+tlb_plolicy_acf <- tlb_policy_resid |> 
+  filter(.model == "tlb_sarima_policy") |>
+  ACF(.resid) |>
+  autoplot() +
+  labs( 
+    title = "ACF Plot of SARIMA(1,0,0)(1,0,0)[12] Model for TLB",
+    caption = stringr::str_wrap("Fig. 25. Shows ACF plot for the SARIMA(1,0,0)(1,0,0)[12] Model with the government policies for TLB has a spike at lag 13."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+tlb_plolicy_pacf <- tlb_policy_resid |> 
+  filter(.model == "tlb_sarima_policy") |>
+  PACF(.resid) |>
+  autoplot() +
+  labs( 
+    title = "PACF Plot of SARIMA(1,0,0)(1,0,0)[12] Model for TLB",
+    caption = stringr::str_wrap("Fig. 26. Shows PACF plot for the SARIMA(1,0,0)(1,0,0)[12] Model with the government policies for TLB has a spike at lag 13."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+tlb_plolicy_acf/tlb_plolicy_pacf
+```
+Fig. 25 and Fig. 26 show that there are still spikes for this SARIMA model for TLB so a better model is required. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_perfect <- singapore_train |>
+  model(
+    tfr_perfect = ARIMA(log_TFR ~ small_family_push + big_family_push + pdq(1,1,0) + PDQ(1,1,0, period = 12))
+  )
+
+tfr_perfect_resid <- augment(TFR_perfect) |> 
+  filter(.model == "tfr_perfect")
+
+tfr_perfect_acf <- tfr_perfect_resid |> 
+  ACF(.resid) |> 
+  autoplot() +
+  labs( 
+    title = "ACF Plot of SARIMA(1,1,0)(1,1,0)[12] Model for TFR",
+    caption = stringr::str_wrap("Fig. 27. Shows ACF plot for the SARIMA(1,1,0)(1,1,0)[12] model with the government policies for TFR has no spikes, indicating white noise."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+
+tfr_perfect_pacf <- tfr_perfect_resid |> 
+  PACF(.resid) |> 
+  autoplot() +
+  labs( 
+    title = "PACF Plot of SARIMA(1,1,0)(1,1,0)[12] Model for TFR",
+    caption = stringr::str_wrap("Fig. 28. Shows PACF plot for the SARIMA(1,1,0)(1,1,0)[12] model with the government policies for TFR has no spikes, indicating white noise."))+
+  theme(plot.caption = element_text(hjust = 0)
+  )
+tfr_perfect_acf/tfr_perfect_pacf
+```
+
+Fig. 5 confirmed that a first order differencing was needed on the log-transformed TFR dataset. The SARIMA(1,0,3)(1,0,0)[12] model with government policies seen in Fig. 23 and Fig.24 does not apply any differencing. Whereas, the model in Fig. 27 and Fig. 28 has a first order difference: SARIMA(1,1,0)(1,1,0)[12]. This model, which also includes the government policies, indicates white noise as it has no spikes in the ACF or the PACF. 
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TFR_perfect_fc <- TFR_perfect |>
+  forecast(new_data = singapore_future)
+TFR_perfect_fc |>
+  autoplot() +
+  autolayer(singapore, log_TFR) +
+  labs(
+    title = stringr::str_wrap("Forecasted TFR from 2013-2024 Compared to Known Data"),
+    caption = stringr::str_wrap("Fig. 29. Shows the forecasted data from the SARIMA(1,1,0)(1,1,0)[12] model with government policies compares well to the known TFR data for the 2013-2024 period.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_perfect <-singapore_train |>
+  model(
+    tlb_sarima_policy = ARIMA(log_TLB ~ small_family_push + big_family_push + pdq(2,1,2) + PDQ(1,0,1, period = 12))
+  )
+TLB_perfect|>
+  glance() |>
+  select(.model, sigma2, AIC, AICc, BIC) |>
+  rename(
+    'Model' = .model,
+    'Variance (sigma^2)' = sigma2,
+    'AIC' = AIC,
+    'AICc' = AICc,
+    'BIC' = BIC
+  ) |>
+  kable(
+    digits = 4,
+    caption = "Shows that the sigma ^2, AIC, and BIC were lower for the model that take the government policies into account. ",
+    align = c("l","l","c","c","c","c")
+  )
+tlb_perfect_resid <- augment(TLB_perfect)
+tlb_perfect_acf <- tlb_perfect_resid |> 
+  ACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "ACF Plot of SARIMA(2,1,2)(1,0,1)[12] Model for TLB",
+    caption = stringr::str_wrap("Fig. 30. Shows ACF plot for the SARIMA(2,1,2)(1,0,1)[12] model with the government policies for TLB has no spikes, indicating white noise.")
+  )
+tlb_perfect_pacf <- tlb_perfect_resid |> 
+  PACF(.resid) |>
+  autoplot() +
+  labs(
+    title = "PACF Plot of SARIMA(2,1,2)(1,0,1)[12] Model for TLB",
+    caption = stringr::str_wrap("Fig. 31. Shows PACF plot for the SARIMA(2,1,2)(1,0,1)[12] model with the government policies for TLB has no spikes, indicating white noise.")
+  )+
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+tlb_perfect_acf/tlb_perfect_pacf 
+```
+
+Fig. 6 confirmed that a first order differencing was needed on the log-transformed TLB dataset. The SARIMA(1,0,0)(1,0,0)[12] model with government policies seen in Fig. 23 and Fig.24 does not apply any differencing. Whereas, the model in Fig. 30 and Fig. 31 has a first order difference: SARIMA(2,1,2)(1,0,1)[12]. This model, which also includes the government policies, indicates white noise as it has no spikes in the ACF or the PACF. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TLB_perfect_fc <- TLB_perfect |>
+  forecast(new_data = singapore_future)
+TLB_perfect_fc |>
+  autoplot() +
+  autolayer(singapore, log_TLB) +
+  labs(
+    title = stringr::str_wrap("Forecasted TLB from 2013-2024 Compared to Known Data"),
+    caption = stringr::str_wrap("Fig. 32. Shows the forecasted data from the SARIMA(2,1,2)(1,0,1)[12] model with government policies compares well to the known TLB data for the 2013-2024 period.", width = 75)
+  ) +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0)
+  )
+```
+In order to reach a final model with white noise for TFR and TLB, model after model had to be created to test the different possibilities for p,d,q, and P,D,Q. Including the period of 12 years into the SARIMA models made the models much better but there were a few stubborn spikes in all of the acf and pacf plots up until finding the final models. 
+
 
 # Conclussion 
+
+This report aimed to find a model capable of accurately predicting the future Total Fertility Rate (TFR) as well as the Total Live-Births (TLB) in Singapore. The initial baseline model assumed an ARIMA(0,1,0) specification, however this did not capture the cyclical nature of the data. 
+
+The transition to a Seasonal ARIMA (SARIMA) model took the 12-year, Year of the Dragon, cycle into consideration. This cyclicality could be seen in Figs. 7,8,9, and 10 with spikes at lags 11, 12, and 13. 
+
+In order to accomplish this, the government policies were added into the models. The forecasted plot for the TFR, Fig. 29, shows that the forecasted data follows the actual data very well. The forecasted plot for the TLB, Fig. 32, shows that the known data is within the 95% confidence interval but the data drops much more drastically than the forecasted data does. 
+
+
 
 # References
 
@@ -141,4 +810,4 @@ $\phi^* (B)X_t \equiv \phi (B)(1-B)^dX_t = \theta (B)Z_t, {Z_t}~WN(0,\sigma ^2)$
 
 [4] Tan, T. (2025). 2024 is first Dragon Year since 1964 that failed to lift Singapore’s fertility rate. [online] The Straits Times. Available at: https://www.straitstimes.com/singapore/community/2024-the-year-in-singapore-the-dragon-failed-to-deliver-the-stork.
 
-
+[5] Hyndman, R.J. and Athanasopoulos, G. (2021). 9.9 Seasonal ARIMA models | Forecasting: Principles and Practice (3rd ed). [online] otexts.com. OTexts. Available at: https://otexts.com/fpp3/seasonal-arima.html.
